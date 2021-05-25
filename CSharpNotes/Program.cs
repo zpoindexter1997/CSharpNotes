@@ -550,3 +550,118 @@ namespace GeometricShapes
         }
     }
 }
+
+//      INTERFACE
+
+namespace InterfaceLesson
+{
+    //established as an interface not a class, name (usually starts with I, followed by method they have in common)
+    interface IPrint
+    {
+        // what you're returning(void), the method that is present in each class (Print();)
+        void Print();
+    }
+}
+namespace InterfaceLesson
+{
+    //connects IPrint interface to ShibaInu class
+    class ShibaInu : IPrint
+    {
+        public string Characteristic { get; set; } = "Stand offish";
+        public string Type { get; set; } = "ShibaInu";
+        //the method that is common
+        public void Print()
+        {
+            Console.WriteLine($"This dog is a {Type} and it is {Characteristic}");
+        }
+    }
+}
+namespace InterfaceLesson
+{
+    class Chihuahua : IPrint
+    {
+        public string Characteristic { get; set; } = "Shakey";
+        public string Type { get; set; } = "Chihuahua";
+        //the method that is common
+        public void Print()
+        {
+            Console.WriteLine($"This dog is a {Type} and it is {Characteristic}");
+        }
+    }
+}
+namespace InterfaceLesson
+{
+    class PitBull : IPrint
+    {
+        public string HeadSize { get; set; }
+        public string Type { get; set; } = "PitBull";
+        //the method that is common       
+        public void Print()
+        {
+            Console.WriteLine($"This dog is a {Type}");
+        }
+    }
+}
+namespace InterfaceLesson
+{
+    class Program
+    {
+        static void Main(string[] args)
+        {
+            var pb = new PitBull();
+            var ch = new Chihuahua();
+            var sh = new ShibaInu();
+            //creating an array named dogs, setting = to interface IPrint[] {values to put into the array};
+            var dogs = new IPrint[] { pb, ch, sh };
+
+            foreach (var dog in dogs)
+            {//calls the common Print method from each dog class since they're in the IPrint type array
+                dog.Print();
+            }
+        }
+    }
+}
+
+//      EXCEPTIONS
+
+namespace ExceptionLesson
+{
+    class Program
+    {
+        static void Main(string[] args)
+        {
+            //Exceptions are errors that will stop the program where it occurs
+            //By using a try/catch, it will store the exception so you can handle it while continuing the working parts of the program
+            //try this method
+            try
+            {
+                Level1();
+            }
+            //catch (ExceptionName newVariableName)
+            catch (DivideByZeroException ex)
+            {
+                //writes out the Message for that exception if it is caught
+                Console.WriteLine($"Exception handled in Main: {ex.Message}");
+            }
+        }
+        //creates method Level1() that just calls to method Level2()
+        static void Level1()
+        {
+            Level2();
+        }
+        //creates method Level2() that just calls to method Level3()
+        static void Level2()
+        {
+            Level3();
+        }
+        //creates method Level3()
+        //doesn't matter how deep the exception occurs, it will catch it where the try/catch is
+        static void Level3()
+        {
+            var n = 1;
+            var d = 0;
+            //you can't divide by 0 so this will cause an exception
+            var e = n / d;
+        }
+    }
+}
