@@ -2,6 +2,7 @@
 
 //using points to a library of code and points to it for the code, currently pointing to System library (System.TQL.Bootcamp.Class1.Console.WriteLine...)
 using System;
+using System.Collections.Generic;
 //using namespace HelloWorld;
 using HelloWorld;
 
@@ -334,31 +335,6 @@ namespace ClassTutorial
     }
 }
 
-//      FOR LOOP
-
-namespace AddToFifty
-{
-    class Program
-    {
-        static void Main(string[] args)
-        {
-            {
-                var sum = 0;
-                //for (new variable variableName; boolean; initialize variable)
-                //for (variable i set = to 1; if i <= 50; add 1 to i)
-                for (var i = 1; i <= 50; i++)
-                {//check if i is divisible by 5 OR by 7
-                    if (i % 5 == 0 || i % 7 == 0)
-                    {//if it is, add it to the sum
-                        sum = sum + i;
-                    }
-                }
-                Console.WriteLine($"Answer is {sum}");
-            }
-        }
-    }
-}
-
 //      INHERITANCE AND COMPOSITION OBJECT ORIENTED PROGRAMMING (OOP)
 
 namespace GeometricShapes
@@ -662,6 +638,227 @@ namespace ExceptionLesson
             var d = 0;
             //you can't divide by 0 so this will cause an exception
             var e = n / d;
+        }
+    }
+}
+
+//      GENERIC COLLECTIONS
+
+//must include using System.Collections.Generic; 
+namespace GenericCollectionLesson
+{
+    class Program
+    {
+        static void Main(string[] args)
+        {
+            //creates variable ints, initializing as a new List<DataType>();
+            var ints = new List<int>();
+            //Adds (DataType) to collection ints
+            ints.Add(4);
+            ints.Add(7);
+            ints.Add(15);
+            //.Count counts how many objects are in a collection
+            Console.WriteLine($"The ints have {ints.Count} items");
+            //Removes the object 7 from the collection ints
+            ints.Remove(7);
+            Console.WriteLine($"The ints have {ints.Count} items");
+
+            //creates a random integer and sets it to var rnd
+            Random rnd = new Random();
+            var totalScore = 0;
+            var frames = new List<int>();
+            var attempts = 0;
+            //for loop, 10 times
+            for (int i = 0; i < 10; i++)
+            {
+                //creates var score, set to rnd(Random integer between 0-31)
+                var score = rnd.Next(0, 31);
+                //Adds the score to the frames collection
+                frames.Add(score);
+            }
+            foreach (var frame in frames)
+            {
+                totalScore += frame;
+            }
+            //While loop to see how many attempts it takes to get a score > 295
+            while (totalScore < 295)
+            {
+                //Removes all objects in frames < 31 (which is all)
+                frames.RemoveAll(x => x < 31);
+                totalScore = 0;
+                for (int i = 0; i < 10; i++)
+                {
+                    var score = rnd.Next(0, 31);
+                    frames.Add(score);
+                }
+                foreach (var frame in frames)
+                {
+                    totalScore += frame;
+                }
+                attempts++;
+            }
+            Console.WriteLine($"You scored {totalScore} this game, only took you {attempts} attempts.");
+        }
+    }
+}
+
+//      DICTIONARY
+
+namespace DictionaryLesson
+{
+    class Program
+    {
+        static void Main(string[] args)
+        {
+            //creates array ints holding these (1000) values
+            int[] ints = { 8,1,2,5,9,6,1,2,9,8,2,4,7,0,1,3,7,9,4,9,6,8,7,1,9,5,8,4,6,1,8,9,6,6,0,2,7,6,0,6,
+                            0,4,7,2,0,1,9,9,1,0,0,8,7,7,4,6,0,1,4,7,5,4,6,8,0,8,6,7,2,0,3,3,8,4,6,2,3,2,8,4,
+                            4,8,9,5,1,0,3,4,6,6,6,5,3,4,7,5,5,8,5,8,0,9,4,6,2,8,8,0,0,3,9,2,5,7,8,9,5,8,2,5,
+                            0,2,2,7,6,9,9,2,4,2,6,6,6,4,9,2,0,2,5,6,2,4,6,6,0,5,6,0,3,2,5,0,7,7,2,5,1,6,5,5,
+                            3,1,5,3,6,4,0,7,9,2,4,3,8,0,5,0,7,3,3,0,8,9,4,5,4,6,1,9,4,5,9,6,3,0,9,8,1,8,8,7,
+                            6,7,7,4,3,9,4,9,3,0,2,5,3,7,6,2,5,6,2,2,3,4,7,3,6,3,7,0,7,1,7,5,7,3,3,9,0,5,3,8,
+                            9,9,4,8,5,1,7,0,7,1,5,2,9,5,8,2,9,9,1,5,1,4,6,6,1,9,8,7,3,7,5,6,2,0,6,3,5,4,7,3,
+                            1,5,7,0,2,2,3,3,5,1,4,1,3,7,4,5,7,5,5,2,4,1,7,0,6,0,5,3,7,4,3,4,4,7,3,6,2,3,2,7,
+                            7,7,6,6,9,4,3,3,4,3,9,7,1,9,4,4,0,4,4,9,6,2,3,2,2,4,3,4,0,4,3,5,0,7,6,4,2,3,3,1,
+                            9,7,8,2,7,4,9,7,7,0,8,0,4,6,0,4,6,1,4,2,8,2,5,2,7,1,1,1,6,8,5,3,2,8,2,2,5,2,9,7,
+                            0,5,8,1,0,5,3,9,1,1,4,1,9,3,2,0,7,8,4,1,6,7,8,6,5,4,0,7,0,0,5,9,9,7,2,7,1,8,6,0,
+                            9,2,1,4,6,7,9,8,5,8,6,6,8,9,3,5,5,6,4,9,8,5,7,7,0,9,4,1,7,0,8,1,5,1,0,8,7,7,7,1,
+                            9,7,7,7,5,5,4,4,7,0,7,1,5,6,5,2,0,8,8,1,7,8,3,3,8,2,0,5,8,2,0,0,0,4,3,8,4,8,7,9,
+                            2,8,5,6,9,4,2,9,5,2,2,7,1,9,0,0,2,1,2,5,1,9,7,7,6,9,7,6,5,8,0,5,6,3,4,5,2,8,5,1,
+                            4,5,2,9,0,7,3,8,1,1,4,7,4,5,1,9,1,9,7,9,7,5,4,4,5,6,9,2,2,4,2,2,3,8,3,5,6,8,9,1,
+                            0,9,6,6,4,3,5,4,5,6,3,0,2,9,3,9,4,2,0,6,1,6,2,4,1,8,1,9,3,5,3,9,7,4,5,8,3,6,6,9,
+                            6,6,1,4,4,3,3,8,5,1,0,5,1,9,0,9,2,8,4,6,9,0,2,6,3,3,7,6,5,1,9,3,2,7,6,0,4,8,2,8,
+                            5,4,2,3,8,9,1,3,3,8,1,7,6,9,9,9,2,5,3,6,3,9,1,4,1,7,3,3,6,1,3,4,9,4,8,9,3,3,8,3,
+                            6,8,7,8,6,0,2,0,3,1,6,7,5,4,8,9,8,4,5,4,4,6,4,0,5,8,8,8,3,6,1,8,3,4,6,7,7,0,3,4,
+                            2,8,4,3,6,4,0,3,1,2,3,7,5,1,6,2,1,6,4,1,5,7,4,4,1,1,5,6,8,0,6,8,4,6,2,7,3,4,8,7,
+                            4,5,7,3,7,4,8,6,0,0,1,0,6,5,6,2,4,5,3,8,3,1,2,2,4,1,0,6,7,3,5,1,6,1,8,0,5,2,4,2,
+                            6,2,4,4,7,1,4,0,3,3,4,9,6,7,6,3,2,1,9,1,6,1,4,7,1,7,8,0,5,3,5,0,2,4,0,0,6,2,8,3,
+                            6,6,6,7,3,2,3,3,2,1,6,4,1,5,3,3,0,5,9,4,8,9,0,8,1,3,9,3,5,8,0,3,1,6,2,6,1,1,1,2,
+                            9,7,4,3,0,7,9,7,5,4,3,2,1,4,7,3,8,9,3,5,6,5,7,7,1,2,1,9,4,1,8,6,6,9,4,2,2,4,7,1,
+                            5,3,1,3,7,7,5,0,0,4,6,2,6,3,1,3,8,9,7,2,9,4,3,3,3,8,9,9,3,1,4,0,8,2,9,1,6,0,3,6 };
+
+            //creating variable dictionary, initializing as a Dictionary(TKey(DataType), TValue(DataType))
+            //TKey = The key in the dictionary that the value is assigned too, 
+            //TValue = what to keep track of with that TKey
+            var dictionary = new Dictionary<int, int>();
+
+
+            //Creating a dictionary with keys 1-9, values all 0
+            for (int i = 0; i < 10; i++)
+            {
+                //using Dictionary dictionary, Add (TKey(i's value), TValue(0)
+                dictionary.Add(i, 0);
+            }
+
+            //Going through each # in the ints array and counting how many instances of that number appear
+            foreach (var i in ints)
+            {
+                //Add 1 to value on that key
+                dictionary[i] += 1;
+                //dictionary[1] = dictionary[1, 1] first time it sees a 1
+                //dictionary[1] = dictionary[1, 2] second time
+            }
+
+            //Foreach loop going through the Keys in the Dictionary dictionary
+            foreach (var key in dictionary.Keys)
+            {
+                //dictionary[key] returns the value for that key
+                Console.WriteLine($"{key} occurs {dictionary[key]} times.");
+            }
+
+            var sum = 0;
+            //Calculating the sum of the values in dictionary
+            foreach (var key in dictionary.Keys)
+            {
+                //sum = sum + value of dictionary[key]
+                sum += dictionary[key];
+            }
+            //avg = sum / # of objects in dictionary
+            var avg = sum / dictionary.Count;
+            Console.WriteLine($"The average is {avg}");
+        }
+    }
+}
+
+//      LIBRARY
+
+//Namespace is different from Main class (TestLibrary)
+//must include using.LibraryLesson; or LibraryLesson.(MethodName) to call
+namespace LibraryLesson
+{
+    public class MathLib
+    {
+        //creating a bunch of methods 
+        public static int Add(int a, int b)
+        {
+            return a + b;
+        }
+        public static int Subtract(int a, int b)
+        {
+            return a - b;
+        }
+        public static int Multiply(int a, int b)
+        {
+            return a * b;
+        }
+        public static int Divide(int a, int b)
+        {
+            return a / b;
+        }
+        public static int Modulo(int a, int b)
+        {
+            //Modulo is calculated by a-((a*b)/b))
+            return Subtract(a, (Multiply(Divide(a, b), b)));
+        }
+    }
+}
+//There's usually a Main class with a Library to test it
+namespace TestLibrary
+{
+    class Program
+    {
+        static void Main(string[] args)
+        {
+            //creating variable OnePlusTwo to test the library method Add
+            var OnePlusTwo = LibraryLesson.MathLib.Add(1, 2);
+            var mod = LibraryLesson.MathLib.Modulo(5, 3);
+        }
+    }
+}
+
+//      EXTENSIONS
+
+namespace ExtensionMethodsLesson
+{
+    //extensions must be static, and so must their methods
+    static class MyExtensionMethods
+    {
+        //methods have parameter (this, (DataType being called) (name))
+        public static void ToConsole(this string str)
+        {
+            //will write the string value of the variable calling toConsole
+            Console.WriteLine($"The string is {str}");
+        }
+        public static string ToUpperCase(this string str)
+        {
+            //takes the value entered, returns it in UpperCase
+            return str.ToUpper();
+        }
+    }
+}
+namespace ExtensionMethodsLesson
+{
+    class Program
+    {
+        static void Main(string[] args)
+        {
+            var abc = "abc";
+            //calls our extension method ToConsole from MyExtensionMethods
+            //like saying Console.WriteLine($"The string is {abc}");
+            abc.ToConsole();
+
+            //passes value of abc to ToUpperCase, then passes through ToConsole
+            abc.ToUpperCase().ToConsole();
         }
     }
 }
