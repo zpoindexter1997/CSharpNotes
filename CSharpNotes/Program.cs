@@ -101,6 +101,123 @@ namespace HelloWorld
     }
 }
 
+//      CLASSES/METHODS/CREATING INSTANCES
+
+namespace ClassTutorial
+{
+    class Major
+    {
+        //creating a private property, if any instance changes this value it changes for all instances(static), integer DataType, named NextId, set = 1 to initialize it
+        private static int NextId { get; set; } = 1;
+        //creates public property, integer DataType, named Id {can be read by other classes; cannot be modified by other classes}
+        public int Id { get; private set; }
+        public string Description { get; set; }
+        public int MinSAT { get; set; }
+        //what a default constructor is behind the scenes (we have to recreate so we can make more constructors)
+        public Major() { }
+        //creates constructor(user inputs a string and goes into variable description)
+        public Major(string description)
+        {//set property Id = property NextId
+            this.Id = NextId;
+            //initialize NextId
+            NextId++;
+            //sets property Description = what passes into constructor Major
+            this.Description = description;
+        }
+    }
+}
+namespace ClassTutorial
+{
+    class TqlMath
+    {
+        //this creates a Constructor, has to be the class name, can't have 2 constructors with same (parameters), have to pass 2 pieces of data in the paramters
+        public TqlMath(int a, int B, string Fred)
+        {//Sets the property A = the parameter a
+            A = a;
+            //Sets the property B = the paramter B, specifying property first with this. (this. only applies to properties, only used when parameter and property same name)
+            this.B = B;
+            this.C = Fred;
+        }
+        public int A { get; set; }
+        public int B { get; set; }
+        public string C { get; set; }
+        public string D { get; set; }
+        //Creates property Pi, which will only have 1 value (static) = the value
+        static double Pi { get; set; } = 3.14159265359;
+        //creating methods(actions to call)
+        public int Sum()
+        {
+            return A + B;
+        }
+        public int Diff()
+        {
+            return A - B;
+        }
+        public int Multiply()
+        {
+            return A * B;
+        }
+        public int Division()
+        {
+            return A / B;
+        }
+        public int Avg()
+        {
+            return (A + B) / 2;
+        }
+        public int Larger()
+        {
+            if (A > B)
+            {
+                return A;
+            }
+            else return B;
+        }
+        public int Smaller()
+        {
+            if (A < B)
+            {
+                return A;
+            }
+            else return B;
+        }
+    }
+}
+namespace ClassTutorial
+{
+    class Program
+    {
+        static void Main(string[] args)
+        {
+            //variable named m1, setting = new instance from Major constructor("passing this into string")
+            var m1 = new Major("Math");
+            var m2 = new Major("Engineering");
+            var m3 = new Major("Education");
+            //creates variable tqlmath, setting = to constructor calling TqlMath(value1, value2, value3)
+            var tqlmath = new TqlMath(21, 30, "string");
+            //if no constructor has been created, we can call it here with default constructor name ();, then we initialize the values
+            var tqlmath = new TqlMath();
+            //This sets the value of variable tqlmath(pointing to A from class TqlMath) = 33
+            tqlmath.A = 33;
+            tqlmath.B = 30;
+            //creating variables, setting = to instance.Methods();
+            var sum = tqlmath.Sum();
+            var avg = tqlmath.Avg();
+            var diff = tqlmath.Diff();
+            var multiply = tqlmath.Multiply();
+            var larger = tqlmath.Larger();
+            var smaller = tqlmath.Smaller();
+            Console.WriteLine($"Sum of {tqlmath.A} and {tqlmath.B} is {sum}");
+            Console.WriteLine($"Difference of {tqlmath.A} and {tqlmath.B} is {diff}");
+            Console.WriteLine($"The larger integer between {tqlmath.A} and {tqlmath.B} is {larger}");
+            Console.WriteLine($"The smaller integer between {tqlmath.A} and {tqlmath.B} is {smaller}");
+            Console.WriteLine($"{tqlmath.A} * {tqlmath.B} = {multiply}");
+            Console.WriteLine($"The average of {tqlmath.A} and {tqlmath.B} = {avg}");
+        }
+
+    }
+}
+
 //      WHILE LOOPS, IF/ELSE
 
 namespace EvenOdd
@@ -218,120 +335,50 @@ namespace AddToFifty
     }
 }
 
-//      CLASSES/METHODS/CREATING INSTANCES
+//      SWITCH CASE
 
-namespace ClassTutorial
+namespace Banking
 {
-    class Major
+    class CertificateOfDeposit
     {
-        //creating a private property, if any instance changes this value it changes for all instances(static), integer DataType, named NextId, set = 1 to initialize it
-        private static int NextId { get; set; } = 1;
-        //creates public property, integer DataType, named Id {can be read by other classes; cannot be modified by other classes}
-        public int Id { get; private set; }
-        public string Description { get; set; }
-        public int MinSAT { get; set; }
-        //what a default constructor is behind the scenes (we have to recreate so we can make more constructors)
-        public Major() { }
-        //creates constructor(user inputs a string and goes into variable description)
-        public Major(string description)
-        {//set property Id = property NextId
-            this.Id = NextId;
-            //initialize NextId
-            NextId++;
-            //sets property Description = what passes into constructor Major
-            this.Description = description;
-        }
-    }
-}
-namespace ClassTutorial
-{
-    class TqlMath
-    {
-        //this creates a Constructor, has to be the class name, can't have 2 constructors with same (parameters), have to pass 2 pieces of data in the paramters
-        public TqlMath(int a, int B, string Fred)
-        {//Sets the property A = the parameter a
-            A = a;
-            //Sets the property B = the paramter B, specifying property first with this. (this. only applies to properties, only used when parameter and property same name)
-            this.B = B;
-            this.C = Fred;
-        }
-        public int A { get; set; }
-        public int B { get; set; }
-        public string C { get; set; }
-        public string D { get; set; }
-        //Creates property Pi, which will only have 1 value (static) = the value
-        static double Pi { get; set; } = 3.14159265359;
-        //creating methods(actions to call)
-        public int Sum()
-        {
-            return A + B;
-        }
-        public int Diff()
-        {
-            return A - B;
-        }
-        public int Multiply()
-        {
-            return A * B;
-        }
-        public int Division()
-        {
-            return A / B;
-        }
-        public int Avg()
-        {
-            return (A + B) / 2;
-        }
-        public int Larger()
-        {
-            if (A > B)
-            {
-                return A;
-            }
-            else return B;
-        }
-        public int Smaller()
-        {
-            if (A < B)
-            {
-                return A;
-            }
-            else return B;
-        }
-    }
-}
-namespace ClassTutorial
-{
-    class Program
-    {
-        static void Main(string[] args)
-        {
-            //variable named m1, setting = new instance from Major constructor("passing this into string")
-            var m1 = new Major("Math");
-            var m2 = new Major("Engineering");
-            var m3 = new Major("Education");
-            //creates variable tqlmath, setting = to constructor calling TqlMath(value1, value2, value3)
-            var tqlmath = new TqlMath(21, 30, "string");
-            //if no constructor has been created, we can call it here with default constructor name ();, then we initialize the values
-            var tqlmath = new TqlMath();
-            //This sets the value of variable tqlmath(pointing to A from class TqlMath) = 33
-            tqlmath.A = 33;
-            tqlmath.B = 30;
-            //creating variables, setting = to instance.Methods();
-            var sum = tqlmath.Sum();
-            var avg = tqlmath.Avg();
-            var diff = tqlmath.Diff();
-            var multiply = tqlmath.Multiply();
-            var larger = tqlmath.Larger();
-            var smaller = tqlmath.Smaller();
-            Console.WriteLine($"Sum of {tqlmath.A} and {tqlmath.B} is {sum}");
-            Console.WriteLine($"Difference of {tqlmath.A} and {tqlmath.B} is {diff}");
-            Console.WriteLine($"The larger integer between {tqlmath.A} and {tqlmath.B} is {larger}");
-            Console.WriteLine($"The smaller integer between {tqlmath.A} and {tqlmath.B} is {smaller}");
-            Console.WriteLine($"{tqlmath.A} * {tqlmath.B} = {multiply}");
-            Console.WriteLine($"The average of {tqlmath.A} and {tqlmath.B} = {avg}");
-        }
+        public decimal InterestRate { get; private set; }
+        public int Months { get; private set; }
 
+        private void SetDurationAndRate(int months)
+        {
+            //switch cases can be used instead of if/else in situations
+            //switch(variable being passed in) - AKA if(months == case)
+            switch (months)
+            {
+                //checks if value(12) was entered, if so do this
+                case 12:
+                    InterestRate = 0.01m;
+                    Months = months;
+                    //must include break; acts as a return
+                    break;
+                //checks if value (24) was entered, if so do this
+                case 24:
+                    InterestRate = 0.02m;
+                    Months = months;
+                    break;
+                case 36:
+                    InterestRate = 0.03m;
+                    Months = months;
+                    break;
+                case 48:
+                    InterestRate = 0.04m;
+                    Months = months;
+                    break;
+                case 60:
+                    InterestRate = 0.05m;
+                    Months = months;
+                    break;
+                //must have a default to be called if none of the cases are true
+                default:
+                    Console.WriteLine($"You've entered an invalid length of time, must be 12 months, 24 months, 36 months, 48 months, or 60 months.");
+                    break;
+            }
+        }
     }
 }
 
@@ -591,7 +638,8 @@ namespace InterfaceLesson
             var dogs = new IPrint[] { pb, ch, sh };
 
             foreach (var dog in dogs)
-            {//calls the common Print method from each dog class since they're in the IPrint type array
+            {
+                //calls the common Print method from each dog class since they're in the IPrint type array
                 dog.Print();
             }
         }
