@@ -3,6 +3,7 @@
 //using points to a library of code and points to it for the code, currently pointing to System library (System.TQL.Bootcamp.Class1.Console.WriteLine...)
 using System;
 using System.Collections.Generic;
+using System.Linq;
 //using namespace HelloWorld;
 using HelloWorld;
 
@@ -907,6 +908,74 @@ namespace ExtensionMethodsLesson
 
             //passes value of abc to ToUpperCase, then passes through ToConsole
             abc.ToUpperCase().ToConsole();
+        }
+    }
+}
+
+//      Language Integrated Query (LINQ)
+
+//must use using.System.Linq;
+namespace LINQ
+{
+    class LINQY
+    {
+        static int[] ints = {
+            505,916,549,881,918,385,350,228,489,719,
+            866,252,130,706,581,313,767,691,678,187,
+            115,660,653,564,805,720,729,392,598,791,
+            620,345,292,318,726,501,236,573,890,357,
+            854,212,670,782,267,455,579,849,229,661,
+            611,588,703,607,824,730,239,118,684,149,
+            206,952,531,809,134,929,593,385,520,214,
+            643,191,998,555,656,738,829,454,195,419,
+            326,996,666,242,189,464,553,579,188,884,
+            197,369,435,476,181,192,439,615,746,277
+        };
+
+        static void Main(string[] args)
+        {
+            //      (LINQ) Method Syntax
+            //creating variable avg, setting = array ints.Where(using variable(x) to represent each int in ints => boolean to check).GetTheAverage();
+            var avg = ints.Where(x => x % 3 == 0 || x % 5 == 0).Average();
+
+            //      (LINQ) Query Syntax
+            //Similar to SQL syntax, but the select is the last clause and from is the first
+            //everything in () is the actual query syntax
+            var avg0 = (from i in ints
+                        where i % 3 == 0 || i % 5 == 0
+                        select i).Average();
+
+            //Does everything this does
+            var sum = 0;
+            var count = 0;
+
+            foreach (var num in ints)
+            {
+                if (num % 3 == 0 || num % 5 == 0)
+                {
+                    sum += num;
+                    count++;
+                }
+            }
+            var avg1 = sum / count;
+
+            //Using Query Syntax creating a collection of just the names from customers collection
+            var names = from c in customers
+                            //JOIN another table to this query
+                        join o in orders
+                        //ON (PK equals FK)
+                        on c.Id equals o.CustId
+                        //WHERE clause comes before select, takes booleans like while/for clauses
+                        where c.Sales > 1000 || c.Sales == 500
+                        //ORDERBY
+                        orderby c.Sales
+                        select new { c.Name, o.Total };
+
+            //USING GROUP BY
+            var result = from c in customers
+                             //GROUP BY 
+                         group c by c.State into st
+                         select new { State = st.Key };
         }
     }
 }

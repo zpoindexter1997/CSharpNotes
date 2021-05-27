@@ -19,6 +19,8 @@ namespace CSharpNotes
         //      DICTIONARY - Line 753 - Page
         //      LIBRARY - Line 831 - Page 
         //      EXTENSIONS - Line 877 - Page 
+        //      Language Integrated Query (LINQ) - Line 915 - Slide 263
+
 
     }
 }
