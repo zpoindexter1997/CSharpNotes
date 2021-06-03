@@ -3,9 +3,12 @@
 //using points to a library of code and points to it for the code, currently pointing to System library (System.TQL.Bootcamp.Class1.Console.WriteLine...)
 using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
 //using namespace HelloWorld;
 using HelloWorld;
+using Microsoft.EntityFrameworkCore;
 
 //using namespace HelloWorld
 //namespace gives a unique name to everything inside of it as a prefix (TQL.Bootcamp.Class1.Console.WriteLine...)
@@ -960,22 +963,471 @@ namespace LINQ
             var avg1 = sum / count;
 
             //Using Query Syntax creating a collection of just the names from customers collection
-            var names = from c in customers
+            var names = (from c in customers
                             //JOIN another table to this query
                         join o in orders
                         //ON (PK equals FK)
                         on c.Id equals o.CustId
                         //WHERE clause comes before select, takes booleans like while/for clauses
                         where c.Sales > 1000 || c.Sales == 500
-                        //ORDERBY
-                        orderby c.Sales
-                        select new { c.Name, o.Total };
+                        //ORDERBY ____ descending (ascending is by default)
+                        orderby c.Sales descending
+                        //Select is what will actually be put into our new list, so it'll select the customers name (c.Name) and everything in orders (o)
+                        select new { c.Name, o })
+                        //We'd wrap the entire query in () so that we can utilize a method on the select, such as .Take()
+                        .Take(5);
 
             //USING GROUP BY
             var result = from c in customers
                              //GROUP BY 
                          group c by c.State into st
                          select new { State = st.Key };
+        }
+    }
+}
+
+//      DbContext
+
+//must include using Microsoft.EntityFrameworkCore;
+//to get this package, using package manager, enter the following
+//install-package Microsoft.EntityFrameworkCore.Tools
+//install-package Microsoft.EntityFrameworkCore.SqlServer
+
+
+namespace Bootcamp.Models
+{
+    //Inherits from the DbContext class which is in the SqlServer package we installed
+    public class BootcampContext : DbContext
+    {
+        //creating a DbSet<Class> for each class(table) in the database
+        //must make a DbSet<Class> After creating a new class before adding a migration, this is what creates the columns in our Database
+        public DbSet<Student> Students { get; set; }
+        public DbSet<Assessment> Assessments { get; set; }
+        public DbSet<AssessmentScore> AssessmentScores { get; set; }
+
+        //connector for the database
+        protected override void OnConfiguring(DbContextOptionsBuilder builder)
+        {
+            if (!builder.IsConfigured)
+            {
+                var connStr = "server=localhost\\sqlexpress01;database=CSBootcampDb;trusted_connection=true;";
+                builder.UseSqlServer(connStr);
+            }
+        }
+        //OnModelCreating is just for when we have a field that isn't a PK that needs to be unique
+        protected override void OnModelCreating(ModelBuilder builder)
+        {
+            //when created, using Employee
+            builder.Entity<Student>(e =>
+            {
+                //Makes sure the Firstname is unique
+                e.HasIndex(p => p.Firstname).IsUnique();
+            });
+        }
+    }
+}
+namespace Bootcamp.Models
+{
+    public class AssessmentScore
+    {
+        //EntityFramework automatically sees Id as Primary Key
+        public int Id { get; set; }
+
+        public int ActualScore { get; set; }
+
+        //EF automatically sees StudentId as a foreign key to Student table because Id at the end 
+        public int StudentId { get; set; }
+        //Virtual makes it so that it doesn't create a column in our database, but can tie back this instance of data
+        public virtual Student Student { get; set; }
+
+        public int AssessmentId { get; set; }
+        public virtual Assessment Assessment { get; set; }
+
+        public AssessmentScore()
+        {
+
+        }
+    }
+}
+namespace Bootcamp.Models
+{
+    public class Student
+    {
+        public int Id { get; set; }
+        //These are attributes that will define restrictions in Sql
+        //Required tells Sql Not null
+        [Required]
+        //Stringlength = varchar(50) for sql
+        [StringLength(50)]
+        public string Firstname { get; set; }
+        [Required, StringLength(50)]
+        public string Lastname { get; set; }
+        //Sets the  decimal to what Sql needs, (11 characters, 2 after the decimal)
+        [Column(TypeName = "decimal(11,2)")]
+        public decimal TargetSalary { get; set; }
+        public bool? InBootcamp { get; set; }
+
+        public virtual List<AssessmentScore> AssessmentScores { get; set; }
+
+        public Student() { }
+    }
+}
+namespace Bootcamp.Models
+{
+    public class Assessment
+    {
+        public int Id { get; set; }
+        [Required, StringLength(30)]
+        public string Topic { get; set; }
+        public int NumberOfQuestions { get; set; }
+        public int MaxPoints { get; set; }
+
+        public virtual List<AssessmentScore> AssessmentScores { get; set; }
+
+        public Assessment()
+        {
+
+        }
+    }
+}
+namespace Bootcamp
+{
+    class Program
+    {
+        static void Main(string[] args)
+        {
+            //Creating a variable to hold the instance of our context
+            var context = new Models.BootcampContext();
+
+            //create yourself as a student
+            var z = new Bootcamp.Models.Student()
+            {
+                Firstname = "ZhaQuon",
+                Lastname = "Poindexter",
+                TargetSalary = 1000000,
+                InBootcamp = true
+            };
+            context.Students.Add(z);
+
+            //create all 5 assessments
+            var git = new Bootcamp.Models.Assessment()
+            {
+                Topic = "Git",
+                MaxPoints = 100,
+                NumberOfQuestions = 6,
+            };
+
+            var sql = new Bootcamp.Models.Assessment()
+            {
+                Topic = "SQL",
+                MaxPoints = 100,
+                NumberOfQuestions = 12,
+            };
+
+            var html = new Bootcamp.Models.Assessment()
+            {
+                Topic = "HTML",
+                MaxPoints = 100,
+                NumberOfQuestions = 12,
+            };
+
+            var java = new Bootcamp.Models.Assessment()
+            {
+                Topic = "JavaScript",
+                MaxPoints = 100,
+                NumberOfQuestions = 12,
+            };
+
+            var angular = new Bootcamp.Models.Assessment()
+            {
+                Topic = "Angular/Typescript",
+                MaxPoints = 100,
+                NumberOfQuestions = 12,
+            };
+
+            context.Assessments.AddRange(git, sql, html, java, angular);
+
+            //insert the 2 you already took
+            var zgit = new Bootcamp.Models.AssessmentScore()
+            {
+                ActualScore = 110,
+                Assessment = git,
+                StudentId = z.Id
+            };
+
+
+            var zsql = new Bootcamp.Models.AssessmentScore()
+            {
+                ActualScore = 100,
+                Assessment = sql,
+                StudentId = z.Id
+            };
+            context.AssessmentScores.AddRange(zsql, zgit);
+
+            //must save changes in order to update the database
+            var rowsAffected = context.SaveChanges();
+            //checks rowsAffected to confirm it worked
+            var success = (rowsAffected == 8);
+            //Getting the average of Assessment Scores
+            var avg = context.AssessmentScores.Average(asc => asc.ActualScore);
+            //Getting the average of ASsessment Scores by a student firstname
+            var avg1 = context.AssessmentScores.Where(x => x.Student.Firstname == "ZhaQuon").ToArray().Average(c => c.ActualScore);
+            //Using Query syntax to join all of the tables and get the fields
+            var scores = from asc in context.AssessmentScores
+                        join s in context.Students
+                        on asc.StudentId equals s.Id
+                        join a in context.Assessments
+                        on asc.AssessmentId equals a.Id
+                        select new { s, a, asc };
+
+            foreach (var score in scores)
+            {
+                //score is the instance of the scores in the list, the s is the s alias (Students created above), then pointing to lastname in student
+                Console.WriteLine($"{score.s.Lastname} got a {score.asc.ActualScore}");
+            }
+        }
+    }
+}
+
+//      API (Web Applications)
+/* UNDER CONSTRUCTION - PLEASE IGNORE FOR NOW
+//Our DbContext for our website
+namespace PoWebApi.Data
+{
+    public class PoContext : DbContext
+    {
+        public PoContext(DbContextOptions<PoContext> options)
+            : base(options)
+        {
+        }
+
+        public DbSet<PoWebApi.Models.Employee> Employee { get; set; }
+
+        protected override void OnModelCreating(ModelBuilder builder)
+        {
+            //when created, using Employee
+            builder.Entity<Employee>(e => {
+                //Makes sure the Login is unique
+                e.HasIndex(p => p.Login).IsUnique();
+            });
+        }
+    }
+}
+namespace PoWebApi.Models
+{
+    public class Employee
+    {
+        public int Id { get; set; }
+        [Required, StringLength(30)]
+        public string Login { get; set; }
+        [Required, StringLength(30)]
+        public string Password { get; set; }
+        [Required, StringLength(30)]
+        public string Firstname { get; set; }
+        [Required, StringLength(30)]
+        public string Lastname { get; set; }
+        public bool IsManager { get; set; }
+
+        public Employee() { }
+    }
+}
+//Our controllers (which are automatically generated)
+namespace PoWebApi.Controllers
+{
+    //Route points to the site we'd use to access this controller
+    //The 7149 is your port number
+    //http://localhost:7149/api/Employees
+    [Route("api/[controller]")]
+    //ApiController attribute takes the class name of our controller and strips off the word Controller (leaving us with Employees)
+    [ApiController]
+    public class EmployeesController : ControllerBase
+    {
+        //creates our context variable - readonly means we can only change it in a constructor, and afterwards it'll only be readable
+        private readonly PoContext _context;
+        //The constructor for context, takes whatever context we pass in and sets it to _context to be used in this class (dependency injection)
+        public EmployeesController(PoContext context)
+        {
+            _context = context;
+        }
+
+
+        // GET: api/Employees
+        // GET = SELECT
+        [HttpGet]
+        //async -> anything that calls this, must call it asynchronously (without preventing the user from doing anything else)
+        //Task is a class in .NET that is required for Async data
+        //returns ActionResult -> class that has lots of derived classes (Bad Request, Not Found, etc..) that you can use to return diff things to use in your methods/primarily for returning error messages
+        //if ActionResult catches no errors, returns IEnumerable -> interface for a collection of <Employee>, which is the generic collection class (so we can return an array or a list)
+        public async Task<ActionResult<IEnumerable<Employee>>> GetEmployee()
+        {
+            //must use await before the context to do things asynchronously, allows us to do async calls as if they were synchronous
+            return await _context.Employee.ToListAsync();
+        }
+
+        // GET: api/Employees/5
+        //("{id}") is a route parameter in the HttpGet, requiring us to add /? to our url where ? is the data that gets loaded into id
+        //If we wanted another method just requiring id, we'd have to change the url to something such as
+        //[HttpGet("textHere/{id}/orTextHere")]
+        [HttpGet("{id}")]
+        public async Task<ActionResult<Employee>> GetEmployee(int id)
+        {
+            var employee = await _context.Employee
+                                        //if there was a FK, we'd show the instance it was pointing to with the following
+                                        //.Include( e => e.InstanceName)
+                                        .FindAsync(id);
+
+            //If we didn't find an employee, we can do this instead of returning null
+            if (employee == null)
+            {
+                //this return is acceptable because it is an ActionResult type
+                return NotFound();
+            }
+            //returns the Ok ActionResult type, as well as the data for (employee)
+            return Ok(employee);
+        }
+
+        //GET: api/Employees/gpdoud/password
+        [HttpGet("{login}/{password}")]
+        public async Task<ActionResult<Employee>> Login(string login, string password)
+        {
+            var employee = await _context.Employee
+                .SingleOrDefaultAsync(e => e.Login == login && e.Password == password);
+            if (employee == null)
+            {
+                return NotFound();
+            }
+            return Ok(employee);
+        }
+
+        // PUT: api/Employees/5
+        // PUT = UPDATE
+        [HttpPut("{id}")]
+        public async Task<IActionResult> PutEmployee(int id, Employee employee)
+        {
+            if (id != employee.Id)
+            {
+                return BadRequest();
+            }
+
+            _context.Entry(employee).State = EntityState.Modified;
+
+            try
+            {
+                await _context.SaveChangesAsync();
+            }
+            catch (DbUpdateConcurrencyException)
+            {
+                if (!EmployeeExists(id))
+                {
+                    return NotFound();
+                }
+                else
+                {
+                    throw;
+                }
+            }
+
+            return NoContent();
+        }
+
+        // POST: api/Employees
+        //POST = INSERT
+        [HttpPost]
+        //A post method is expecting us to pass the entire instance of the data (employee) into the body of the request, not the url
+        public async Task<ActionResult<Employee>> PostEmployee(Employee employee)
+        {
+            //only time you don't need await before context is adding because it is just loading the data into a cache
+            _context.Employee.Add(employee);
+
+            //still need it for save changes
+            await _context.SaveChangesAsync();
+            //Returns CreatedAtAction ActionResult type, with data ("GetEmployee"(method to show us the employee that was added), with the new employee instance)
+            return CreatedAtAction("GetEmployee", new { id = employee.Id }, employee);
+        }
+
+        // DELETE: api/Employees/5
+        // DELETE = DELETE
+        [HttpDelete("{id}")]
+        public async Task<ActionResult<Employee>> DeleteEmployee(int id)
+        {
+            var employee = await _context.Employee.FindAsync(id);
+            if (employee == null)
+            {
+                return NotFound();
+            }
+
+            _context.Employee.Remove(employee);
+            await _context.SaveChangesAsync();
+
+            return Ok(employee);
+        }
+
+        private bool EmployeeExists(int id)
+        {
+            return _context.Employee.Any(e => e.Id == id);
+        }
+
+    }
+}
+//This is our appsettings
+{
+    "Logging": {
+        "LogLevel": {
+            "Default": "Information",
+      "Microsoft": "Warning",
+      "Microsoft.Hosting.Lifetime": "Information"
+        }
+    },
+  "AllowedHosts": "*",
+  "ConnectionStrings": {
+        //This is our connection string
+        "PoDb": "server=localhost\\sqlexpress01;database=PoDb;trusted_connection=true;"
+  }
+}
+//Our Startup class that utilizes our connection and sets configurations
+namespace PoWebApi
+{
+    public class Startup
+    {
+        public Startup(IConfiguration configuration)
+        {
+            Configuration = configuration;
+        }
+
+        public IConfiguration Configuration { get; }
+
+        // This method gets called by the runtime. Use this method to add services to the container.
+        public void ConfigureServices(IServiceCollection services)
+        {
+            services.AddControllers();
+
+            //Must point to our connection string to link the database to use
+            services.AddDbContext<PoContext>(options =>
+                    options.UseSqlServer(Configuration.GetConnectionString("PoDb")));
+
+            //CrossOriginScripting, piece of server code that allows you to limit what can talk to your server
+            services.AddCors();
+        }
+
+        // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
+        public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
+        {
+            if (env.IsDevelopment())
+            {
+                app.UseDeveloperExceptionPage();
+            }
+
+            app.UseRouting();
+
+            //Must include this to allow any origin (any machine) to talk to our server, and allow any header, and allow any method to be used
+            app.UseCors(x => x.AllowAnyOrigin().AllowAnyHeader().AllowAnyMethod());
+
+            app.UseAuthorization();
+
+            app.UseEndpoints(endpoints =>
+            {
+                endpoints.MapControllers();
+            });
         }
     }
 }
