@@ -6,6 +6,9 @@ using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
+using System.Net.Http;
+using System.Text.Json;
+using System.Threading.Tasks;
 //using namespace HelloWorld;
 using HelloWorld;
 using Microsoft.EntityFrameworkCore;
@@ -204,6 +207,7 @@ namespace ClassTutorial
             //This sets the value of variable tqlmath(pointing to A from class TqlMath) = 33
             tqlmath.A = 33;
             tqlmath.B = 30;
+            
             //creating variables, setting = to instance.Methods();
             var sum = tqlmath.Sum();
             var avg = tqlmath.Avg();
@@ -265,6 +269,11 @@ namespace EvenOdd
                 {//Sets variable runAgain to false
                     runAgain = false;
                 }//since while is surrounding this, it'll go back and check while(boolean)
+
+                //Ternary statement, checks a boolean and sets a value to 1 or the other
+                //var = condition ? ref consequent : ref alternative
+                //var checks a condition, ? if it is true it'll set = to true : if not, set = to false;
+                runAgain = answerStr == "y" || answerStr == "Y" ? true : false;
             }
         }
     }
@@ -993,6 +1002,11 @@ namespace LINQ
 //install-package Microsoft.EntityFrameworkCore.Tools
 //install-package Microsoft.EntityFrameworkCore.SqlServer
 
+//if you already have a database and want to link it to this program/autopopulate, do this
+//scaffold-dbcontext 'server={servername};database={dbname};trusted_connection=true;' Microsoft.EntityFrameworkCore.SqlServer -OutputDir Models
+
+//add-migration "description" to compare what new properties/data is in the models and adds what changes you've made that aren't there
+//update-database takes the migration and merges into the actual database
 
 namespace Bootcamp.Models
 {
@@ -1429,5 +1443,83 @@ namespace PoWebApi
                 endpoints.MapControllers();
             });
         }
+    }
+}
+*/
+
+//      C# to WebApi      
+
+//Could be used instead of PostMan to call HttpMethods on a WebApi
+namespace CSharp2WebApi
+{
+    class Program
+    {
+        async Task Run()
+        {
+            //this is the class that gives us the ability in c# to call any api (any website)
+            var http = new HttpClient();
+            //This is a class to allow 
+            var jsonSerializerOptions = new JsonSerializerOptions()
+            {
+                //This property allows us to ignore differences in case types (john = John = JOHN)
+                PropertyNameCaseInsensitive = true,
+                //This controls how it pulls text (converts it to CamelCase, which is  thisExampleHere (first word lower, following words upper)
+                PropertyNamingPolicy = JsonNamingPolicy.CamelCase
+            };
+            //this variable points to the url we are using
+            var url = "http://localhost:7149/api/employees";
+
+            //this is to call an HttpClient method (http).GET(using url);
+            //This instance calls to the http server and will get all employees, storing it into our var
+            var httpMessageResponse = await http.GetAsync(url);
+            //creates variable httpContent to take the .Content of our get (httpMessageResponse) and read it as a string
+            var httpContent = await httpMessageResponse.Content.ReadAsStringAsync();
+            //JsonSerializer is a class in C# specifically to turn JSon -> C# (deserialize) or C# -> JSon (serialize)
+            //creates variable employees to capture the C# version of (DataType <Employee[Array]>(what httpContent returned,using our jsonSerializerOptions)
+            var employees = JsonSerializer.Deserialize<Employee[]>(httpContent, jsonSerializerOptions);
+
+            //creating a new employee that we will push using HttpPut method
+            var newEmpl = new Employee()
+            {
+                Id = 0,
+                Firstname = "Noah",
+                Lastname = "Phence",
+                Login = "nphence",
+                Password = "password",
+                IsManager = true
+            };
+            //creates var json to hold the newEmpl employee, serialize (convert to JSon text)
+            var json = JsonSerializer.Serialize<Employee>(newEmpl, jsonSerializerOptions);
+            //this uses the json variable to encode it into json format
+            var httpContent2 = new StringContent(json, System.Text.Encoding.UTF8, "application/json");
+            //calls our http Post Method to insert this new customer to (url, contentToBePassedUp)
+            var httpMessageResponse2 = await http.PostAsync(url, httpContent2);
+
+            foreach (var e in employees)
+            {
+                Console.WriteLine($"{e.Id} {e.Lastname} {e.IsManager}");
+            }
+
+        }
+
+        async static Task Main(string[] args)
+        {
+            var pgm = new Program();
+            await pgm.Run();
+        }
+    }
+}
+namespace CSharp2WebApi
+{
+    class Employee
+    {
+        public int Id { get; set; }
+        public string Login { get; set; }
+        public string Password { get; set; }
+        public string Firstname { get; set; }
+        public string Lastname { get; set; }
+        public bool IsManager { get; set; }
+
+        public Employee() { }
     }
 }
