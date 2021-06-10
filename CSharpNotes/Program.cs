@@ -12,6 +12,7 @@ using System.Threading.Tasks;
 //using namespace HelloWorld;
 using HelloWorld;
 using Microsoft.EntityFrameworkCore;
+using PoWebApi.Models;
 
 //using namespace HelloWorld
 //namespace gives a unique name to everything inside of it as a prefix (TQL.Bootcamp.Class1.Console.WriteLine...)
@@ -1293,7 +1294,6 @@ namespace Bootcamp
 
 //      API (Web Applications)
 
-/* UNDER CONSTRUCTION - PLEASE IGNORE FOR NOW
 //Our DbContext for our website
 namespace PoWebApi.Data
 {
@@ -1305,6 +1305,9 @@ namespace PoWebApi.Data
         }
 
         public DbSet<PoWebApi.Models.Employee> Employee { get; set; }
+        public DbSet<PurchaseOrder> PurchaseOrders { get; set; }
+        public DbSet<Item> Items { get; set; }
+        public DbSet<PurchaseOrderLine> PurchaseOrderLines { get; set; }
 
         protected override void OnModelCreating(ModelBuilder builder)
         {
@@ -1321,12 +1324,16 @@ namespace PoWebApi.Models
     public class Employee
     {
         public int Id { get; set; }
+
         [Required, StringLength(30)]
         public string Login { get; set; }
+
         [Required, StringLength(30)]
         public string Password { get; set; }
+
         [Required, StringLength(30)]
         public string Firstname { get; set; }
+
         [Required, StringLength(30)]
         public string Lastname { get; set; }
         public bool IsManager { get; set; }
@@ -1334,6 +1341,66 @@ namespace PoWebApi.Models
         public Employee() { }
     }
 }
+namespace PoWebApi.Models
+{
+    public class PurchaseOrder
+    {
+        public static string StatusNew { get; set; } = "New";
+        public static string StatusEdit { get; set; } = "Edit";
+        public static string StatusReview { get; set; } = "Review";
+        public static string StatusApproved { get; set; } = "Approved";
+        public static string StatusRejected { get; set; } = "Rejected";
+
+        public int Id { get; set; }
+
+        [Required, StringLength(80)]
+        public string Description { get; set; }
+
+        [Required, StringLength(20)]
+        public string Status { get; set; } = PurchaseOrder.StatusNew;
+
+        [Column(TypeName = "decimal(9,2)")]
+        public decimal Total { get; set; } = 0;
+
+        public bool Active { get; set; } = true;
+
+        public int EmployeeId { get; set; }
+        public virtual Employee Employee { get; set; }
+
+        public PurchaseOrder() { }
+    }
+}
+namespace PoWebApi.Models
+{
+    public class PurchaseOrderLine
+    {
+        public int Id { get; set; }
+
+        public int Quantity { get; set; }
+
+        public int PurchaseOrderId { get; set; }
+        public virtual PurchaseOrder PurchaseOrder { get; set; }
+
+        public int ItemId { get; set; }
+        public virtual Item Item { get; set; }
+    }
+}
+namespace PoWebApi.Models
+{
+    public class Item
+    {
+        public int Id { get; set; }
+
+        [Required, StringLength(30)]
+        public string Name { get; set; }
+
+        [Required, Column(TypeName = "decimal(7,2)")]
+        public decimal Price { get; set; }
+
+        public bool Active { get; set; } = true;
+    }
+}
+
 //Our controllers (which are automatically generated)
 namespace PoWebApi.Controllers
 {
@@ -1352,7 +1419,6 @@ namespace PoWebApi.Controllers
         {
             _context = context;
         }
-
 
         // GET: api/Employees
         // GET = SELECT
@@ -1469,7 +1535,316 @@ namespace PoWebApi.Controllers
         {
             return _context.Employee.Any(e => e.Id == id);
         }
+    }
+}
+namespace PoWebApi.Controllers
+{
+    [Route("api/[controller]")]
+    [ApiController]
+    public class PurchaseOrdersController : ControllerBase
+    {
+        private readonly PoContext _context;
 
+        public PurchaseOrdersController(PoContext context)
+        {
+            _context = context;
+        }
+
+        // GET: api/PurchaseOrders
+        [HttpGet]
+        public async Task<ActionResult<IEnumerable<PurchaseOrder>>> GetPurchaseOrders()
+        {
+            return await _context.PurchaseOrders
+                                    //When a class has a virtual instance of another class, you must Include it for the full instance to show
+                                    .Include(e => e.Employee)
+                                    .ToListAsync();
+        }
+        // GET: api/PurchaseOrders/underReview
+        [HttpGet("underReview")]
+        public async Task<ActionResult<IEnumerable<PurchaseOrder>>> GetPurchaseOrdersUnderReview()
+        {
+            return await _context.PurchaseOrders
+                                    .Where(x => x.Status == PurchaseOrder.StatusReview)
+                                    .Include(e => e.Employee)
+                                    .ToListAsync();
+        }
+        // GET: api/PurchaseOrders/5
+        [HttpGet("{id}")]
+        public async Task<ActionResult<PurchaseOrder>> GetPurchaseOrder(int id)
+        {
+            var purchaseOrder = await _context.PurchaseOrders
+                                                .SingleOrDefaultAsync(e => e.Id == id);
+
+            if (purchaseOrder == null)
+            {
+                return NotFound();
+            }
+
+            return purchaseOrder;
+        }
+
+        // GET: api/PurchaseOrders/5/getEmp
+        [HttpGet("{id}/getEmp")]
+        public async Task<ActionResult<PurchaseOrder>> GetPurchaseOrderWithEmp(int id)
+        {
+            var purchaseOrder = await _context.PurchaseOrders
+                                                .Include(e => e.Employee)
+                                                .SingleOrDefaultAsync(e => e.Id == id);
+
+            if (purchaseOrder == null)
+            {
+                return NotFound();
+            }
+            return purchaseOrder;
+        }
+
+        // PUT: api/PurchaseOrders/5
+        [HttpPut("{id}")]
+        public async Task<IActionResult> PutPurchaseOrder(int id, PurchaseOrder purchaseOrder)
+        {
+            if (id != purchaseOrder.Id)
+            {
+                return BadRequest();
+            }
+
+            _context.Entry(purchaseOrder).State = EntityState.Modified;
+
+            try
+            {
+                await _context.SaveChangesAsync();
+            }
+            catch (DbUpdateConcurrencyException)
+            {
+                if (!PurchaseOrderExists(id))
+                {
+                    return NotFound();
+                }
+                else
+                {
+                    throw;
+                }
+            }
+            return NoContent();
+        }
+
+        // PUT: api/PurchaseOrders/5/edit
+        [HttpPut("{id}/edit")]
+        public async Task<IActionResult> PutPurchaseOrderToEdit(int id)
+        {
+            var purchaseOrder = await _context.PurchaseOrders.FindAsync(id);
+            if (purchaseOrder == null)
+            {
+                return NotFound();
+            }
+
+            purchaseOrder.Status = "Edit";
+
+            return await PutPurchaseOrder(id, purchaseOrder);
+        }
+        // PUT: api/PurchaseOrders/5/review
+        [HttpPut("{id}/review")]
+        public async Task<IActionResult> PutPurchaseOrderToReview(int id)
+        {
+            var purchaseOrder = await _context.PurchaseOrders.FindAsync(id);
+            var total = purchaseOrder.Total;
+
+            if (purchaseOrder == null)
+            {
+                return NotFound();
+            }
+
+            purchaseOrder.Status = (purchaseOrder.Total <= 100 && purchaseOrder.Total > 0) ? "Approved" : "Review";
+
+            return await PutPurchaseOrder(id, purchaseOrder);
+
+        }
+        // PUT: api/PurchaseOrders/5/approve
+        [HttpPut("{id}/approved")]
+        public async Task<IActionResult> PutPurchaseOrderToApprove(int id)
+        {
+            var purchaseOrder = await _context.PurchaseOrders.FindAsync(id);
+            if (purchaseOrder == null)
+            {
+                return NotFound();
+            }
+            purchaseOrder.Status = "Approved";
+
+            return await PutPurchaseOrder(id, purchaseOrder);
+        }
+        // PUT: api/PurchaseOrders/5/reject
+        [HttpPut("{id}/rejected")]
+        public async Task<IActionResult> PutPurchaseOrderToReject(int id)
+        {
+            var purchaseOrder = await _context.PurchaseOrders.FindAsync(id);
+            if (purchaseOrder == null)
+            {
+                return NotFound();
+            }
+            purchaseOrder.Status = "Rejected";
+
+            return await PutPurchaseOrder(id, purchaseOrder);
+        }
+        //PUT: api/PurchaseOrders/manual/5/status
+        [HttpPut("manual/{id}/{status}")]
+        public async Task<IActionResult> PutPurchaseOrderToStatus(int id, string status)
+        {
+            var statuses = "|edit| |review| |approved| |rejected|";
+            var purchaseOrder = await _context.PurchaseOrders.FindAsync(id);
+            if (purchaseOrder == null)
+            {
+                return NotFound();
+            }
+            if (!statuses.Contains($"|{status.ToLower()}|"))
+            {
+                return BadRequest();
+            }
+            purchaseOrder.Status = char.ToUpper(status[0]) + status.Substring(1).ToLower();
+
+            if (status.ToLower() == "review")
+            {
+                purchaseOrder.Status = (purchaseOrder.Total <= 100 && purchaseOrder.Total > 0) ? "Approved" : "Review";
+            }
+            return await PutPurchaseOrder(id, purchaseOrder);
+        }
+
+        // POST: api/PurchaseOrders
+        [HttpPost]
+        public async Task<ActionResult<PurchaseOrder>> PostPurchaseOrder(PurchaseOrder purchaseOrder)
+        {
+            _context.PurchaseOrders.Add(purchaseOrder);
+            await _context.SaveChangesAsync();
+
+            return CreatedAtAction("GetPurchaseOrder", new { id = purchaseOrder.Id }, purchaseOrder);
+        }
+
+        // DELETE: api/PurchaseOrders/5
+        [HttpDelete("{id}")]
+        public async Task<ActionResult<PurchaseOrder>> DeletePurchaseOrder(int id)
+        {
+            var purchaseOrder = await _context.PurchaseOrders.FindAsync(id);
+            if (purchaseOrder == null)
+            {
+                return NotFound();
+            }
+
+            _context.PurchaseOrders.Remove(purchaseOrder);
+            await _context.SaveChangesAsync();
+
+            return purchaseOrder;
+        }
+
+        private bool PurchaseOrderExists(int id)
+        {
+            return _context.PurchaseOrders.Any(e => e.Id == id);
+        }
+    }
+}
+namespace PoWebApi.Controllers
+{
+    [Route("api/[controller]")]
+    [ApiController]
+    public class PurchaseOrderLinesController : ControllerBase
+    {
+        private readonly PoContext _context;
+
+        public PurchaseOrderLinesController(PoContext context)
+        {
+            _context = context;
+        }
+
+        private async Task RecalculatePoTotal(int poid)
+        {
+            var po = await _context.PurchaseOrders.FindAsync(poid);
+            if (po == null) throw new Exception("FATAL: Po is not found to recalc!");
+            po.Total = (from l in _context.PurchaseOrderLines
+                        join i in _context.Items
+                        on l.ItemId equals i.Id
+                        where l.PurchaseOrderId == poid
+                        select new { LineTotal = l.Quantity * i.Price }).Sum(x => x.LineTotal);
+            await _context.SaveChangesAsync();
+        }
+
+        // GET: api/PurchaseOrderLines
+        [HttpGet]
+        public async Task<ActionResult<IEnumerable<PurchaseOrderLine>>> GetPurchaseOrderLines()
+        {
+            return await _context.PurchaseOrderLines.ToListAsync();
+        }
+
+        // GET: api/PurchaseOrderLines/5
+        [HttpGet("{id}")]
+        public async Task<ActionResult<PurchaseOrderLine>> GetPurchaseOrderLine(int id)
+        {
+            var purchaseOrderLine = await _context.PurchaseOrderLines.FindAsync(id);
+
+            if (purchaseOrderLine == null)
+            {
+                return NotFound();
+            }
+            return purchaseOrderLine;
+        }
+        // PUT: api/PurchaseOrderLines/5
+        [HttpPut("{id}")]
+        public async Task<IActionResult> PutPurchaseOrderLine(int id, PurchaseOrderLine purchaseOrderLine)
+        {
+            if (id != purchaseOrderLine.Id)
+            {
+                return BadRequest();
+            }
+
+            _context.Entry(purchaseOrderLine).State = EntityState.Modified;
+
+            try
+            {
+                await _context.SaveChangesAsync();
+                await RecalculatePoTotal(purchaseOrderLine.PurchaseOrderId);
+            }
+            catch (DbUpdateConcurrencyException)
+            {
+                if (!PurchaseOrderLineExists(id))
+                {
+                    return NotFound();
+                }
+                else
+                {
+                    throw;
+                }
+            }
+            return NoContent();
+        }
+
+        // POST: api/PurchaseOrderLines
+        [HttpPost]
+        public async Task<ActionResult<PurchaseOrderLine>> PostPurchaseOrderLine(PurchaseOrderLine purchaseOrderLine)
+        {
+            _context.PurchaseOrderLines.Add(purchaseOrderLine);
+            await _context.SaveChangesAsync();
+            await RecalculatePoTotal(purchaseOrderLine.PurchaseOrderId);
+
+            return CreatedAtAction("GetPurchaseOrderLine", new { id = purchaseOrderLine.Id }, purchaseOrderLine);
+        }
+
+        // DELETE: api/PurchaseOrderLines/5
+        [HttpDelete("{id}")]
+        public async Task<ActionResult<PurchaseOrderLine>> DeletePurchaseOrderLine(int id)
+        {
+            var purchaseOrderLine = await _context.PurchaseOrderLines.FindAsync(id);
+            if (purchaseOrderLine == null)
+            {
+                return NotFound();
+            }
+
+            _context.PurchaseOrderLines.Remove(purchaseOrderLine);
+            await _context.SaveChangesAsync();
+            await RecalculatePoTotal(purchaseOrderLine.PurchaseOrderId);
+
+            return purchaseOrderLine;
+        }
+
+        private bool PurchaseOrderLineExists(int id)
+        {
+            return _context.PurchaseOrderLines.Any(e => e.Id == id);
+        }
     }
 }
 //This is our appsettings
@@ -1534,7 +1909,6 @@ namespace PoWebApi
         }
     }
 }
-*/
 
 //      C# TO WEBAPI      
 
