@@ -7,27 +7,25 @@ namespace CSharpNotes
     class Key
     {
         //      INTRO TO C# - LINE 1 - SLIDE 
-        //      CLASSES/METHODS/CREATING INSTANCES - LINE 104 - SLIDE
-        //      WHILE LOOPS, IF/ELSE - LINE 221 - SLIDE
-        //      FOREACH LOOPS/ARRAYS - LINE 269 - SLIDE
-        //      FOR LOOP - LINE 313 - SLIDE
-        //      SWITCH CASE - LINE 338 - SLIDE
-        //      INHERITANCE AND COMPOSITION OBJECT ORIENTED PROGRAMMING (OOP) - LINE 385 - SLIDE
-        //      INTERFACE - LINE 577 - SLIDE
-        //      EXCEPTIONS - LINE 649 - SLIDE
-        //      GENERIC COLLECTIONS - LINE 693 - SLIDE
-        //      STACK COLLECTION
-        //      DICTIONARY - LINE 753 - SLIDE
-        //      LIBRARY - LINE 831 - SLIDE 
-        //      EXTENSIONS - LINE 877 - SLIDE 
-        //      LANGUAGE INTEGRATED QUERY (LINQ) - LINE 915 - SLIDE 263
-        //      DBCONTEXT - LINE 989 - SLIDE
-        //      API (WEB APPLICATIONS) UNDER CONSTRUCTION - LINE  -
-        //      API(GET) - LINE  - 
-        //      API(PUT) - LINE  - 
-        //      C# TO WEBAPI - LINE 1445
-        //      XUNIT AUTOMATED TESTING - LINE 1538
-        //      BIT MASKING - LINE 
+        //      CLASSES/METHODS/CREATING INSTANCES - LINE 112 - SLIDE
+        //      WHILE LOOPS, IF/ELSE - LINE 230 - SLIDE
+        //      FOREACH LOOPS/ARRAYS - LINE 292 - SLIDE
+        //      FOR LOOP - LINE 336 - SLIDE
+        //      SWITCH CASE - LINE 361 - SLIDE
+        //      INHERITANCE AND COMPOSITION OBJECT ORIENTED PROGRAMMING (OOP) - LINE 408 - SLIDE
+        //      INTERFACE - LINE 600 - SLIDE
+        //      EXCEPTIONS - LINE 673 - SLIDE
+        //      GENERIC COLLECTIONS - LINE 717 - SLIDE
+        //      STACK COLLECTION - Line 777
+        //      DICTIONARY - LINE 854 - SLIDE
+        //      LIBRARY - LINE 932 - SLIDE 
+        //      EXTENSIONS - LINE 979 - SLIDE 
+        //      LANGUAGE INTEGRATED QUERY (LINQ) - LINE 1016 - SLIDE 263
+        //      DBCONTEXT - LINE 1087 - SLIDE
+        //      API (WEB APPLICATIONS) - LINE 1295 -
+        //      C# TO WEBAPI - LINE 1913
+        //      XUNIT AUTOMATED TESTING - LINE 1990
+        //      BIT MASKING - LINE 2187
 
 
     }
