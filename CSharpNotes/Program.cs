@@ -274,6 +274,15 @@ namespace EvenOdd
                 //var = condition ? ref consequent : ref alternative
                 //var checks a condition, ? if it is true it'll set = to true : if not, set = to false;
                 runAgain = answerStr == "y" || answerStr == "Y" ? true : false;
+
+                //we can set a variable to contain these values, so that we can go through them each
+                var status = "|Y| |y|";
+                //this checks to see if answerStr has a value that's the same as one in our status vari
+                //if status doesn't contain ($"|value in answerStr|")
+                if (!status.Contains($"|{answerStr}|"))
+                {
+                    return BadRequest();
+                }
             }
         }
     }
@@ -589,6 +598,7 @@ namespace GeometricShapes
 
 //      INTERFACE
 
+//Interfaces are not classes, different file type
 namespace InterfaceLesson
 {
     //established as an interface not a class, name (usually starts with I, followed by method they have in common)
@@ -763,6 +773,83 @@ namespace GenericCollectionLesson
     }
 }
 
+//      STACK COLLECTION
+
+// Imagine the plates at a buffet, you take one off the top (pop) and the one under it pops up to replace it
+// You place one back on top (push) and it becomes the new top
+namespace RpnCalculator
+{
+    class Program
+    {
+        static void Main(string[] args)
+        {
+            var stack = new Stack<int>();
+
+            foreach (var arg in args)
+            {
+                switch (arg.Substring(0, 1))
+                {
+                    //process the operator
+                    case "+":
+                        //takes the top object from the stack
+                        var op1 = stack.Pop();
+                        //will take the next top object from the stack
+                        var op2 = stack.Pop();
+                        //creates variable ans to get the answer of op1 + op2
+                        var ans = op1 + op2;
+                        //Puts ans back on top of the stack
+                        stack.Push(ans);
+                        break;
+                    case "-":
+                        op1 = stack.Pop();
+                        op2 = stack.Pop();
+                        ans = op1 - op2;
+                        stack.Push(ans);
+                        break;
+                    case "*":
+                        op1 = stack.Pop();
+                        op2 = stack.Pop();
+                        ans = op1 * op2;
+                        stack.Push(ans);
+                        break;
+                    case "/":
+                        op1 = stack.Pop();
+                        op2 = stack.Pop();
+                        ans = op1 / op2;
+                        stack.Push(ans);
+                        break;
+                    //convert to integer
+                    case "0":
+                    case "1":
+                    case "2":
+                    case "3":
+                    case "4":
+                    case "5":
+                    case "6":
+                    case "7":
+                    case "8":
+                    case "9":
+                        int i;
+                        //Try Parse(converting string) to int using (string arg, out i) putting the new value into i
+                        //converted will be true or false depending on if the parse worked
+                        var converted = int.TryParse(arg, out i);
+                        //if converted is false, skip this arguement and go to the next
+                        if (!converted) continue;
+                        //if it was converted, push it onto our stack list
+                        stack.Push(i);
+                        //End of arguement
+                        break;
+                    //throw it away
+                    default:
+                        break;
+                }
+
+            }
+            Console.WriteLine($"{stack.Pop()}");
+        }
+    }
+}
+
 //      DICTIONARY
 
 namespace DictionaryLesson
@@ -874,6 +961,7 @@ namespace LibraryLesson
     }
 }
 //There's usually a Main class with a Library to test it
+//Make sure this program has the library as a dependency
 namespace TestLibrary
 {
     class Program
@@ -924,7 +1012,7 @@ namespace ExtensionMethodsLesson
     }
 }
 
-//      Language Integrated Query (LINQ)
+//      LANGUAGE INTEGRATED QUERY (LINQ)
 
 //must use using.System.Linq;
 namespace LINQ
@@ -995,7 +1083,7 @@ namespace LINQ
     }
 }
 
-//      DbContext
+//      DBCONTEXT
 
 //must include using Microsoft.EntityFrameworkCore;
 //to get this package, using package manager, enter the following
@@ -1204,6 +1292,7 @@ namespace Bootcamp
 }
 
 //      API (Web Applications)
+
 /* UNDER CONSTRUCTION - PLEASE IGNORE FOR NOW
 //Our DbContext for our website
 namespace PoWebApi.Data
@@ -1447,7 +1536,7 @@ namespace PoWebApi
 }
 */
 
-//      C# to WebApi      
+//      C# TO WEBAPI      
 
 //Could be used instead of PostMan to call HttpMethods on a WebApi
 namespace CSharp2WebApi
@@ -1521,5 +1610,319 @@ namespace CSharp2WebApi
         public bool IsManager { get; set; }
 
         public Employee() { }
+    }
+}
+
+//      XUNIT AUTOMATED TESTING
+
+//You typically want to test multiple cases to make sure everything works
+//The testing class must be under xUnit Test Project
+//Needs dependency to the Library holding the methods we want to test
+namespace TestMathLib
+{
+    public class TestMathLibrary
+    {
+        //Theory allows us to test multiple input data, which will give us multiple outputs
+        //[Fact] would be used if there was 1 definitive answer (ex. Pi = 3.1714...)
+        [Theory]
+        //InlineData(Data we want to pass into our test)
+        [InlineData(1, 2, 3)]
+        [InlineData(-1, -2, -3)]
+        [InlineData(6, 2, 8)]
+        [InlineData(-2, 5, 3)]
+        [InlineData(int.MaxValue, int.MinValue, -1)]
+        [InlineData(-88, 18, -70)]
+        [InlineData(10, 0, 10)]
+        [InlineData(10, -10, 0)]
+        //Creating the test method holding variables for InlineData
+        public void TestAdd(int i, int j, int ans)
+        {
+            var mathLib = new MathLib();
+            //Equal checks if the two values inside() are equal to each other
+            //The answer you're expecting always goes first, the method to get the answer goes last
+            Assert.Equal(ans, mathLib.Add(i, j));
+        }
+
+        [Theory]
+        [InlineData(3, 2, 1)]
+        [InlineData(0, 20, -20)]
+        [InlineData(int.MinValue, int.MaxValue, 1)]
+        [InlineData(-10, -20, 10)]
+        public void TestSubtract(int i, int j, int ans)
+        {
+            var mathLib = new MathLib();
+            Assert.Equal(ans, mathLib.Subtract(i, j));
+        }
+
+        [Theory]
+        [InlineData(10, 0, 0)]
+        [InlineData(int.MaxValue, 1, int.MaxValue)]
+        [InlineData(int.MinValue, 1, int.MinValue)]
+        [InlineData(5, 5, 25)]
+        [InlineData(-10, -10, 100)]
+        [InlineData(-50, 3, -150)]
+        public void TestMultiply(int i, int j, int ans)
+        {
+            var mathLib = new MathLib();
+            Assert.Equal(ans, mathLib.Multiply(i, j));
+        }
+
+        [Theory]
+        [InlineData(100, 5, 20)]
+        [InlineData(-50, 10, -5)]
+        [InlineData(-20, -2, 10)]
+        [InlineData(1, 0, 0)]
+        public void TestDivide(int i, int j, int ans)
+        {
+            var mathLib = new MathLib();
+            if (j == 0)
+            {
+                //This is to catch an exception (DivideByZero) () calls the function, => where function is ___ (mathLib.Divide)
+                Assert.ThrowsAny<DivideByZeroException>(() => mathLib.Divide(i, j));
+                return;
+            }
+            Assert.Equal(ans, mathLib.Divide(i, j));
+        }
+
+        [Theory]
+        [InlineData(2, 3, 8)]
+        [InlineData(-5, 2, 25)]
+        [InlineData(0, 50, 0)]
+        public void TestPower(int i, int j, int ans)
+        {
+            var mathLib = new MathLib();
+            Assert.Equal(ans, mathLib.Power(i, j));
+        }
+
+        [Theory]
+        [InlineData(2, 4)]
+        [InlineData(0, 0)]
+        [InlineData(-5, 25)]
+        public void TestSquare(int i, int ans)
+        {
+            var mathLib = new MathLib();
+            Assert.Equal(ans, mathLib.Square(i));
+        }
+
+        [Theory]
+        [InlineData(0, 0)]
+        [InlineData(4, 24)]
+        [InlineData(-4, 24)]
+        public void TestFactorial(int i, int ans)
+        {
+            var mathLib = new MathLib();
+            Assert.Equal(ans, mathLib.Factorial(i));
+        }
+
+        [Theory]
+        [InlineData(10, 2, 0)]
+        [InlineData(0, 4, 0)]
+        [InlineData(50, 16, 2)]
+        [InlineData(-10, -101, -10)]
+        public void TestModulo(int i, int j, int ans)
+        {
+            var mathLib = new MathLib();
+            Assert.Equal(ans, mathLib.Modulo(i, j));
+        }
+    }
+}
+//The Interface
+namespace TestingMathLibrary
+{
+    public interface IMathLibrary
+    {
+
+        int Add(int i, int j);
+        int Subtract(int i, int j);
+        int Multiply(int i, int j);
+        int Divide(int i, int j);
+        int Power(int i, int j);
+        int Square(int i);
+        int Factorial(int i);
+        int Modulo(int i, int j);
+
+    }
+}
+//The Library for our methods
+namespace TestingMathLibrary
+{
+    //connecting to our interface
+    public class MathLib : IMathLibrary
+    {
+        public int Add(int i, int j)
+        {
+            return i + j;
+        }
+
+        public int Subtract(int i, int j)
+        {
+            return i - j;
+        }
+
+        public int Multiply(int i, int j)
+        {
+            return i * j;
+        }
+
+        public int Divide(int i, int j)
+        {
+            return i / j;
+        }
+
+        public int Power(int i, int j)
+        {
+            var answer = Math.Pow(i, j).ToString();
+            return Int32.Parse(answer);
+        }
+
+        public int Square(int i)
+        {
+            return i * i;
+        }
+
+        public int Factorial(int i)
+        {
+
+            int solution = 1;
+            if (i == 0)
+            {
+                solution = 0;
+            }
+            for (var c = i; c > 0; c--)
+            {
+                solution *= c;
+            }
+            if (i < 0)
+            {
+                for (var c = i; c < 0; c++)
+                {
+                    solution *= c;
+                }
+            }
+            return solution;
+        }
+
+        public int Modulo(int i, int j)
+        {
+            return Subtract(i, (Multiply(Divide(i, j), j)));
+        }
+
+    }
+}
+
+//		BIT MASKING
+
+namespace CensusProblem
+{
+
+    class Program
+    {
+        //Finding a subset of this array that added up will = 100,000,000
+        int[] populations = { 18897109, 12828837, 9461105, 6371773, 5965343,
+                                5946800, 5582170, 5564635, 5268860, 4552402,
+                                4335391, 4296250, 4224851, 4192887, 3439809,
+                                3279833, 3095313, 2812896, 2783243, 2710489,
+                                2543482, 2356285, 2226009, 2149127, 2142508, 2134411 };
+        /*Binary is all 1s and 0s, incrementing up as follows
+		0000, 0001, 0010, 0011, 0100, 0101, 0110, 0111, 1000, 1001, 1010, 1011, 1100, 1101, 1110, 1111, 10000, 10001...
+		 0,    1,    2,    3,    4,    5,    6,    7...
+		Since it only contains 2 numbers, we can use 2^(numbers) and it'll get us the binary with (numbers) of 0s after a 1
+		2^10 = 0b100_0000_0000 = 1024
+		*/
+        void run()
+        {
+            var start = DateTime.Now;
+            var end = DateTime.Now;
+            // 0b is needed for binary
+            //This is the equivalent to 2^25 (25 0s is how we know)
+            //This is because we have 26 entries in our array, and we want a spot for each entry
+            int i = 0b10_0000_0000_0000_0000_0000_0000;
+            int tot = 0;
+            var goal = 100000000;
+            while (tot != goal || i < Math.Pow(2, 26))
+            {
+                //(i & 0b1) looks at the 1's on i and checks if there is a value
+                //first iteration is no, because i = 0b10_0000_0000_0000_0000_0000_000>0<
+                //When you add 1 to i, it'll = 0b10_0000_0000_0000_0000_0000_0000_000>1< and this will be true
+                if ((i & 0b1) > 0) { tot += populations[0]; }
+                if ((i & 0b10) > 0) { tot += populations[1]; }
+                if ((i & 0b100) > 0) { tot += populations[2]; }
+                if ((i & 0b1000) > 0) { tot += populations[3]; }
+                if ((i & 0b1_0000) > 0) { tot += populations[4]; }
+                if ((i & 0b10_0000) > 0) { tot += populations[5]; }
+                if ((i & 0b100_0000) > 0) { tot += populations[6]; }
+                if ((i & 0b1000_0000) > 0) { tot += populations[7]; }
+                if ((i & 0b1_0000_0000) > 0) { tot += populations[8]; }
+                if ((i & 0b10_0000_0000) > 0) { tot += populations[9]; }
+                if ((i & 0b100_0000_0000) > 0) { tot += populations[10]; }
+                if ((i & 0b1000_0000_0000) > 0) { tot += populations[11]; }
+                if ((i & 0b1_0000_0000_0000) > 0) { tot += populations[12]; }
+                if ((i & 0b10_0000_0000_0000) > 0) { tot += populations[13]; }
+                if ((i & 0b100_0000_0000_0000) > 0) { tot += populations[14]; }
+                if ((i & 0b1000_0000_0000_0000) > 0) { tot += populations[15]; }
+                if ((i & 0b1_0000_0000_0000_0000) > 0) { tot += populations[16]; }
+                if ((i & 0b10_0000_0000_0000_0000) > 0) { tot += populations[17]; }
+                if ((i & 0b100_0000_0000_0000_0000) > 0) { tot += populations[18]; }
+                if ((i & 0b1000_0000_0000_0000_0000) > 0) { tot += populations[19]; }
+                if ((i & 0b1_0000_0000_0000_0000_0000) > 0) { tot += populations[20]; }
+                if ((i & 0b10_0000_0000_0000_0000_0000) > 0) { tot += populations[21]; }
+                if ((i & 0b100_0000_0000_0000_0000_0000) > 0) { tot += populations[22]; }
+                if ((i & 0b1000_0000_0000_0000_0000_0000) > 0) { tot += populations[23]; }
+                if ((i & 0b1_0000_0000_0000_0000_0000_0000) > 0) { tot += populations[24]; }
+                //there is a 1 in this spot because i = 0b>1<0_0000_0000_0000_0000_0000_0000
+                if ((i & 0b10_0000_0000_0000_0000_0000_0000) > 0) { tot += populations[25]; }
+                if (tot == goal)
+                {
+                    end = DateTime.Now;
+                    TimeSpan ts = end - start;
+                    print(i, ts);
+                    break;
+                }
+                else
+                {
+                    tot = 0;
+                    i++;
+                }
+            }
+        }
+
+        void print(int i, TimeSpan ts)
+        {
+            List<int> solution = new List<int>();
+            if ((i & 0b1) > 0) { solution.Add(populations[0]); }
+            if ((i & 0b10) > 0) { solution.Add(populations[1]); }
+            if ((i & 0b100) > 0) { solution.Add(populations[2]); }
+            if ((i & 0b1000) > 0) { solution.Add(populations[3]); }
+            if ((i & 0b1_0000) > 0) { solution.Add(populations[4]); }
+            if ((i & 0b10_0000) > 0) { solution.Add(populations[5]); }
+            if ((i & 0b100_0000) > 0) { solution.Add(populations[6]); }
+            if ((i & 0b1000_0000) > 0) { solution.Add(populations[7]); }
+            if ((i & 0b1_0000_0000) > 0) { solution.Add(populations[8]); }
+            if ((i & 0b10_0000_0000) > 0) { solution.Add(populations[9]); }
+            if ((i & 0b100_0000_0000) > 0) { solution.Add(populations[10]); }
+            if ((i & 0b1000_0000_0000) > 0) { solution.Add(populations[11]); }
+            if ((i & 0b1_0000_0000_0000) > 0) { solution.Add(populations[12]); }
+            if ((i & 0b10_0000_0000_0000) > 0) { solution.Add(populations[13]); }
+            if ((i & 0b100_0000_0000_0000) > 0) { solution.Add(populations[14]); }
+            if ((i & 0b1000_0000_0000_0000) > 0) { solution.Add(populations[15]); }
+            if ((i & 0b1_0000_0000_0000_0000) > 0) { solution.Add(populations[16]); }
+            if ((i & 0b10_0000_0000_0000_0000) > 0) { solution.Add(populations[17]); }
+            if ((i & 0b100_0000_0000_0000_0000) > 0) { solution.Add(populations[18]); }
+            if ((i & 0b1000_0000_0000_0000_0000) > 0) { solution.Add(populations[19]); }
+            if ((i & 0b1_0000_0000_0000_0000_0000) > 0) { solution.Add(populations[20]); }
+            if ((i & 0b10_0000_0000_0000_0000_0000) > 0) { solution.Add(populations[21]); }
+            if ((i & 0b100_0000_0000_0000_0000_0000) > 0) { solution.Add(populations[22]); }
+            if ((i & 0b1000_0000_0000_0000_0000_0000) > 0) { solution.Add(populations[23]); }
+            if ((i & 0b1_0000_0000_0000_0000_0000_0000) > 0) { solution.Add(populations[24]); }
+            if ((i & 0b10_0000_0000_0000_0000_0000_0000) > 0) { solution.Add(populations[25]); }
+            var str = string.Join(", ", solution);
+            Console.WriteLine($"In {ts}, the solution is :\n {str}");
+            Console.ReadKey();
+        }
+
+        static void Main(string[] args)
+        {
+            (new Program()).run();
+        }
     }
 }
