@@ -301,7 +301,7 @@ namespace ForEachCalcAvg
             var count = 0;
             var highest = 0;
             var lowest = 1000;
-            //declaring variable nbrs as an int in a [collection of values] = {value1, value2...}
+            //declaring variable nbrs as an int in a [collection of values] = {value1, value2...}az
             int[] nbrs =
             {
                754, 233, 509, 792, 700, 596, 833, 658, 998, 742,
